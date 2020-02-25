@@ -1,1 +1,5 @@
-print(5)
+test = "good"
+TEST = "bad"
+
+print(test)
+print(TEST)
