@@ -1,1 +1,7 @@
 try that commit
+
+class a {
+	some content
+}
+
+Actually, Yana, I love you.
