@@ -1,1 +1,3 @@
-print(45)
+from extra import *
+
+hello() 
