@@ -26,18 +26,12 @@ class SqrtDecomposition:
             result += self.array[l]
             l += 1
 
-        print(result, l)
-
         while l + m <= r:
             result += self.sqrt_array[l // m]
             l += m
 
-        print(result, l)
-
         while l <= r:
             result += self.array[l]
             l += 1
-
-        print(result, l)
 
         return result
