@@ -2,22 +2,21 @@ import math
 
 class SqrtDecomposition:
 
-    def __init__(array):
+    def __init__(self, array, func=lambda a : sum(a)):
         self.array = array
-        self.sqrt_array = build(array) 
+        self.sqrt_array = self.build(array, func) 
 
-    def build(array):
-        pass        
+    def build(self, array, func):
+        n = len(array)
+        m = int(math.sqrt(n))
+        temp = []
 
-a = [1, 2, 3, 4, 5]
+        for i in range(0, n, m): 
+            temp.append(func(array[i:i+m]))
+
+        return temp
 
 
-n = len(a)
-m = int(math.sqrt(len(a)))
-
-_sum = lambda a : sum(a)
-_min = lambda a : min(a)
-
-for i in range(0, n, m):
-    result = _min(a[i:i+m])
-    print("{} : [{}, {}]".format(result, i, min(i+m-1, n-1)))
+a = SqrtDecomposition([1, 2, 3, 4, 5])
+print(a)
+print(vars(a))
