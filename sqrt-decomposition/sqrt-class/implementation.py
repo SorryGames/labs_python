@@ -15,6 +15,9 @@ a = [1, 2, 3, 4, 5]
 n = len(a)
 m = int(math.sqrt(len(a)))
 
+_sum = lambda a : sum(a)
+_min = lambda a : min(a)
+
 for i in range(0, n, m):
-    localsum = sum(a[i:i+m])
-    print("{} : [{}, {}]".format(localsum, i, i+m-1))
+    result = _min(a[i:i+m])
+    print("{} : [{}, {}]".format(result, i, min(i+m-1, n-1)))
