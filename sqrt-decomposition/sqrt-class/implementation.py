@@ -34,7 +34,7 @@ class SqrtDecomposition:
             self.array[l] = self.array[l] * multiplier + addend
             l += 1
 
-        mark_array[i // m] = (2, 0)
+        self.mark_array[i // m] = (2, 0)
         return
 
     def get(self, l, r):
@@ -50,7 +50,7 @@ class SqrtDecomposition:
             result += self.array[l]
             l += 1
 
-        while l + m <= r:
+        while l + m - 1 <= r:
             result += self.sqrt_array[l // m]
             l += m
 
@@ -74,7 +74,7 @@ class SqrtDecomposition:
             self.array[l] = value
             l += 1
 
-        while l + m <= r:
+        while l + m - 1 <= r:
             self.sqrt_array[l // m] = value * m
             self.mark_array[l // m] = (0, value)
             l += m
@@ -85,7 +85,7 @@ class SqrtDecomposition:
             self.array[l] = value
             l += 1
 
-    def add(self, l, r):
+    def add(self, l, r, value):
         n = len(self.array)
         m = int(math.sqrt(n))
         result = 0
@@ -99,7 +99,7 @@ class SqrtDecomposition:
             self.array[l] += value
             l += 1
 
-        while l + m <= r:
+        while l + m - 1 <= r:
             self.sqrt_array[l // m] += value
             self.mark_array[l // m] = (1, value)
             l += m
