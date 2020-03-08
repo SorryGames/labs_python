@@ -15,9 +15,9 @@ class bcolors:
 
 class Checker: 
 
-    def __init__(self, test_count, n):
+    def __init__(self, test_count, array_size):
         self.test_count = test_count
-        self.array = [0] * n
+        self.array = [0] * array_size
         self.sqrt_array = SqrtDecomposition(self.array.copy())
 
     def generate(self):
@@ -94,7 +94,7 @@ class Checker:
         return self.get(l, r) == self.sqrt_array.get(l, r)
 
 
-checker = Checker(1000, 4)
+checker = Checker(test_count=100000, array_size=5)
 checker.generate()
 
 # checker.assign(2, 3, -10)
