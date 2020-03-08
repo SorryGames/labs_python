@@ -94,13 +94,14 @@ class Checker:
         return self.get(l, r) == self.sqrt_array.get(l, r)
 
 
-checker = Checker(100, 5)
-# checker.generate()
+checker = Checker(1000, 4)
+checker.generate()
 
-checker.add(0, 4, 1)
-print(checker.array)
-print(checker.sqrt_array.array)
-print(checker.sqrt_array.sqrt_array)
+# checker.assign(2, 3, -10)
+# checker.add(1, 3, 2)
+# print(checker.array)
+# print(checker.sqrt_array.array)
+# print(checker.sqrt_array.sqrt_array)
 
-# print(checker.sqrt_array.get(3, 4))
-# print(checker.check(3, 4))
+# print(checker.sqrt_array.get(2, 2))
+# print(checker.check(2, 2))

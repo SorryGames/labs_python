@@ -22,6 +22,9 @@ class SqrtDecomposition:
         n = len(self.array)
         m = int(math.sqrt(n))
         
+        if i >= n:
+            return
+
         multiplier = self.mark_array[i // m][0]
         addend = self.mark_array[i // m][1]
 
@@ -70,7 +73,7 @@ class SqrtDecomposition:
 
         self.push(l)
         while l % m and l <= r:
-            self.sqrt_array[l // m] = value - self.array[l]
+            self.sqrt_array[l // m] += value - self.array[l]
             self.array[l] = value
             l += 1
 
@@ -81,7 +84,7 @@ class SqrtDecomposition:
 
         self.push(l)
         while l <= r:
-            self.sqrt_array[l // m] = value - self.array[l]
+            self.sqrt_array[l // m] += value - self.array[l]
             self.array[l] = value
             l += 1
 
@@ -93,6 +96,7 @@ class SqrtDecomposition:
         l = max(l, 0)
         r = min(r, n-1)
 
+
         self.push(l)
         while l % m and l <= r:
             self.sqrt_array[l // m] += value
@@ -100,13 +104,21 @@ class SqrtDecomposition:
             l += 1
 
         while l + m - 1 <= r:
-            self.sqrt_array[l // m] += value
-            self.mark_array[l // m] = (1, value)
+            self.sqrt_array[l // m] += value * m
+
+            old_value = self.mark_array[l // m][1]
+
+            if self.mark_array[l // m][0] == 2:
+                self.mark_array[l // m] = (1, value)
+
+            self.mark_array[l // m] = (
+                self.mark_array[l // m][0], 
+                old_value + value)
+
             l += m
 
         self.push(l)
         while l <= r:
-            result += self.array[l]
+            self.sqrt_array[l // m] += value
+            self.array[l] += value
             l += 1
-
-        return result
