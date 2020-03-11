@@ -94,7 +94,7 @@ class Checker:
         return self.get(l, r) == self.sqrt_array.get(l, r)
 
 
-checker = Checker(test_count=100000, array_size=5)
+checker = Checker(test_count=10000, array_size=10)
 checker.generate()
 
 # checker.assign(2, 3, -10)
