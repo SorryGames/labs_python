@@ -92,16 +92,3 @@ class Checker:
 
     def check (self, l, r):
         return self.get(l, r) == self.sqrt_array.get(l, r)
-
-
-checker = Checker(test_count=10000, array_size=10)
-checker.generate()
-
-# checker.assign(2, 3, -10)
-# checker.add(1, 3, 2)
-# print(checker.array)
-# print(checker.sqrt_array.array)
-# print(checker.sqrt_array.sqrt_array)
-
-# print(checker.sqrt_array.get(2, 2))
-# print(checker.check(2, 2))
