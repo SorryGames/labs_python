@@ -15,14 +15,23 @@ class bcolors:
 
 class Checker: 
 
-    def __init__(self, test_count, array_size):
+    def __init__(self, test_count, array_size, output=None):
         self.test_count = test_count
         self.array = [0] * array_size
         self.sqrt_array = SqrtDecomposition(self.array.copy())
+        self.output = output
+        if self.output is not None:
+            self.cout = open(self.output, "w")
+
+    def checkerprint(self, text):
+        if self.output is None:
+            print(text)
+        else:
+            self.cout.write(text + "\n")
 
     def generate(self):
         n = len(self.array)
-        print(bcolors.WARNING
+        self.checkerprint(bcolors.WARNING
             + "Initialize array"
             + bcolors.ENDC
             + " ==> "
@@ -38,7 +47,7 @@ class Checker:
             if key == 1:
                 self.assign(l, r, value)
                 
-                print(bcolors.WARNING 
+                self.checkerprint(bcolors.WARNING 
                     + "Assign [{}, {}] a value of {}".format(l+1, r+1, value) 
                     + bcolors.ENDC 
                     + " ==> "
@@ -47,7 +56,7 @@ class Checker:
             elif key == 2:
                 self.add(l, r, value)
                 
-                print(bcolors.WARNING 
+                self.checkerprint(bcolors.WARNING 
                     + "Add [{}, {}] a value of {}".format(l+1, r+1, value) 
                     + bcolors.ENDC
                     + " ==> "
@@ -57,22 +66,23 @@ class Checker:
 
                 if self.check(l, r):
             
-                    print(bcolors.OKGREEN 
+                    self.checkerprint(bcolors.OKGREEN 
                         + "Check [{}, {}] - OK".format(l+1, r+1) 
                         + bcolors.ENDC)
             
                 else:
             
-                    print(bcolors.FAIL 
+                    self.checkerprint(bcolors.FAIL 
                         + "Check [{}, {}] - FAIL!".format(l+1, r+1) 
                         + bcolors.ENDC)
             
                     break
 
         else: 
-            print(bcolors.OKGREEN 
+            self.checkerprint(bcolors.OKGREEN 
                 + "All tests are passed!".format(l+1, r+1) 
                 + bcolors.ENDC)
+        self.cout.close()
 
     def get(self, l, r): 
         result = 0
