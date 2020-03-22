@@ -1,3 +1,5 @@
+#!/usr/bin/env python3 
+
 import argparse
 from sqrt import SqrtDecomposition
 from checker import Checker
@@ -32,10 +34,11 @@ def init_parser():
 def main():
     args = init_parser()
     
-    print(args)
     if args.auto:
         checker = Checker(args.count_test, args.size_array, args.output)
         checker.generate()
+    else:
+        pass
 
 
 main()

@@ -1,7 +1,6 @@
 import sys
 import random
-sys.path.append("/home/matvey/Desktop/labs_python/sqrt-decomposition/sqrt-class")
-from implementation import SqrtDecomposition
+from sqrt import SqrtDecomposition
 
 class bcolors:
     HEADER = '\033[95m'
@@ -22,18 +21,25 @@ class Checker:
         self.output = output
         if self.output is not None:
             self.cout = open(self.output, "w")
+            self.clr_green = self.clr_gray = self.clr_red = self.clr_end = ''
+        else:
+            self.clr_green = bcolors.OKGREEN
+            self.clr_gray = bcolors.WARNING
+            self.clr_red = bcolors.FAIL
+            self.clr_end = bcolors.ENDC
 
-    def checkerprint(self, text):
+    def print(self, text):
         if self.output is None:
             print(text)
         else:
+            text = text
             self.cout.write(text + "\n")
 
     def generate(self):
         n = len(self.array)
-        self.checkerprint(bcolors.WARNING
+        self.print(self.clr_gray
             + "Initialize array"
-            + bcolors.ENDC
+            + self.clr_end
             + " ==> "
             + str(self.array))
         for i in range(self.test_count):
@@ -45,44 +51,35 @@ class Checker:
                 l, r = r, l
 
             if key == 1:
-                self.assign(l, r, value)
-                
-                self.checkerprint(bcolors.WARNING 
+                self.assign(l, r, value) 
+                self.print(self.clr_gray 
                     + "Assign [{}, {}] a value of {}".format(l+1, r+1, value) 
-                    + bcolors.ENDC 
+                    + self.clr_end 
                     + " ==> "
                     + str(self.array))
-            
             elif key == 2:
                 self.add(l, r, value)
-                
-                self.checkerprint(bcolors.WARNING 
+                self.print(self.clr_gray 
                     + "Add [{}, {}] a value of {}".format(l+1, r+1, value) 
-                    + bcolors.ENDC
+                    + self.clr_end
                     + " ==> "
                     + str(self.array))
-            
             elif key == 3:
-
                 if self.check(l, r):
-            
-                    self.checkerprint(bcolors.OKGREEN 
+                    self.print(self.clr_green 
                         + "Check [{}, {}] - OK".format(l+1, r+1) 
-                        + bcolors.ENDC)
-            
+                        + self.clr_end)
                 else:
-            
-                    self.checkerprint(bcolors.FAIL 
+                    self.print(self.clr_red 
                         + "Check [{}, {}] - FAIL!".format(l+1, r+1) 
-                        + bcolors.ENDC)
-            
+                        + self.clr_end)
                     break
-
         else: 
-            self.checkerprint(bcolors.OKGREEN 
+            self.print(self.clr_green 
                 + "All tests are passed!".format(l+1, r+1) 
-                + bcolors.ENDC)
-        self.cout.close()
+                + self.clr_end)
+        if self.output is not None:
+            self.cout.close()
 
     def get(self, l, r): 
         result = 0
