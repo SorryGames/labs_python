@@ -27,11 +27,14 @@ class FirstTask:
         self.input_file = args.input
         if args.auto:
             try:
-                checker = Checker(args.count_test, args.size_array, args.output)
+                checker = Checker(args.count_test,
+                                    args.size_array,
+                                    args.output)
                 checker.generate()
             except:
-                print("{0}ERROR: Parameters for auto-checker are wrong!{1}".format(
-                                                            bcolors.FAIL, 
+                print("{0}ERROR: Parameters for auto-checker "\
+                                            "are wrong!{1}".format(
+                                                            bcolors.FAIL,
                                                             bcolors.ENDC))
         else:
             self.sqrt_manage()
@@ -43,7 +46,7 @@ class FirstTask:
                 self.cin = open(self.input_file, "r")
         except:
                 print("{0}ERROR: Can't open input file!{1}".format(
-                                                            bcolors.FAIL, 
+                                                            bcolors.FAIL,
                                                             bcolors.ENDC))
                 exit()
         # output file if presented
@@ -52,7 +55,7 @@ class FirstTask:
                 self.cout = open(self.output_file, "w")
         except ValueError:
             print("{0}ERROR: Can't create output file!{1}".format(
-                                                            bcolors.FAIL, 
+                                                            bcolors.FAIL,
                                                             bcolors.ENDC))
             exit()
         # enter array
@@ -72,7 +75,7 @@ class FirstTask:
             "\n\t{0}add L R X{1}   \tadd the value of X to elements [L, R]"\
             "\n\t{0}get L R{1}     \tget the sum of elements [L, R]"\
             "\n\t{0}exit{1}        \tstop the program\n\n".format(
-                                                            bcolors.BOLD, 
+                                                            bcolors.BOLD,
                                                             bcolors.ENDC,
                                                             len(array)))
         # processing queries
@@ -91,7 +94,7 @@ class FirstTask:
             try:
                 query[1:3] = [ int(i)-1 for i in query[1:3] ]
                 query[3:] = [ int(i) for i in query[3:] ]
-                if query[1] < 0 or query[2] >= len(array) \
+                if query[1] < 0 or query[2] >= len(array)\
                                 or query[1] > query[2]:
                     raise Exception
                 if query[0] == "assign":
@@ -107,7 +110,7 @@ class FirstTask:
                     raise Exception
             except:
                 print("{0}ERROR: Check your query (#{1}){2}\n".format(
-                                                                bcolors.FAIL, 
+                                                                bcolors.FAIL,
                                                                 count, 
                                                                 bcolors.ENDC))
             query = self.input()
@@ -128,8 +131,9 @@ class FirstTask:
 
     def init_parser(self):
         pr = argparse.ArgumentParser(
-                            description="Use this module to interact with Sqrt "\
-                            "Decomposition by [file | console | auto-checker]")
+                            description="Use this module to interact with "\
+                            "Sqrt Decomposition by "\
+                            "[file | console | auto-checker]")
         pr.add_argument("-i", "--input", 
                             help="Specify input file.")
         pr.add_argument("-a", "--auto", 
