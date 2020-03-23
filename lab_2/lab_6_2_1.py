@@ -21,22 +21,39 @@ class FirstTask:
     def __init__(self):
         pass
 
+    def start(self):
+        args = self.init_parser()
+        self.output_file = args.output
+        self.input_file = args.input
+        if args.auto:
+            try:
+                checker = Checker(args.count_test, args.size_array, args.output)
+                checker.generate()
+            except:
+                print("{0}ERROR: Parameters for auto-checker are wrong!{1}".format(
+                                                            bcolors.FAIL, 
+                                                            bcolors.ENDC))
+        else:
+            self.sqrt_manage()
+
     def sqrt_manage(self):
         # input file if presented
         try:
             if self.input_file is not None:
-                self.cin.open(self.input_file, "r")
+                self.cin = open(self.input_file, "r")
         except:
-                print("{0}ERROR: Can't open "
-                    "input file!{1}".format(bcolors.FAIL, bcolors.ENDC))
+                print("{0}ERROR: Can't open input file!{1}".format(
+                                                            bcolors.FAIL, 
+                                                            bcolors.ENDC))
                 exit()
         # output file if presented
         try:
             if self.output_file is not None:
-                self.cout.open(self.output_file, "w")
-        except:
-            print("{0}ERROR: Can't create "
-                    "output file!{1}".format(bcolors.FAIL, bcolors.ENDC))
+                self.cout = open(self.output_file, "w")
+        except ValueError:
+            print("{0}ERROR: Can't create output file!{1}".format(
+                                                            bcolors.FAIL, 
+                                                            bcolors.ENDC))
             exit()
         # enter array
         try:
@@ -48,20 +65,29 @@ class FirstTask:
             exit()
         # create sqrt structure
         sqrt = SqrtDecomposition(array)
-        query = self.input("[INFO] "
-            "Queries should match the following syntax: "
-            "\n\t{0}assign 2 3 5{1}\tassign the value of 5 to elements [2, 3]"
-            "\n\t{0}add 4 6 2{1}   \tadd the value of 2 to elements [4, 6]"
-            "\n\t{0}get 1 3{1}     \tget the sum of elements [1, 3]"
+        query = self.input("[INFO] "\
+            "{0}1 <= L <= R <= {2}{1}"\
+            "\nQueries should match the following syntax : "\
+            "\n\t{0}assign L R X{1}\tassign the value of X to elements [L, R]"\
+            "\n\t{0}add L R X{1}   \tadd the value of X to elements [L, R]"\
+            "\n\t{0}get L R{1}     \tget the sum of elements [L, R]"\
             "\n\t{0}exit{1}        \tstop the program\n\n".format(
                                                             bcolors.BOLD, 
-                                                            bcolors.ENDC))
+                                                            bcolors.ENDC,
+                                                            len(array)))
         # processing queries
         count = 1
         while True:
+            if query[0] == "exit":
+                if self.output_file is not None:
+                    self.cout.close()
+                if self.input_file is not None:
+                    self.cin.close()
+                exit()
             if query[0] == "":
                 query = self.input()
-                continue 
+                continue
+            # else let's find the instructions
             try:
                 query[1:3] = [ int(i)-1 for i in query[1:3] ]
                 query[3:] = [ int(i) for i in query[3:] ]
@@ -76,32 +102,22 @@ class FirstTask:
                     sqrt.add(*query)
                 elif query[0] == "get":
                     query.pop(0)
-                    self.print(sqrt.get(*query))
-                elif query[0] == "exit":
-                    exit()
+                    self.print(str(sqrt.get(*query)))
+                else:
+                    raise Exception
             except:
-                print("{0}ERROR: Check your query (#{1}){2}".format(
+                print("{0}ERROR: Check your query (#{1}){2}\n".format(
                                                                 bcolors.FAIL, 
                                                                 count, 
                                                                 bcolors.ENDC))
             query = self.input()
             count += 1
 
-    def start(self):
-        args = self.init_parser()
-        self.output_file = args.output
-        self.input_file = args.input
-        if args.auto:
-            checker = Checker(args.count_test, args.size_array, args.output)
-            checker.generate()
-        else:
-            self.sqrt_manage()
-
     def print(self, text):
         if self.output_file is None:
             print(text)
         else:
-            self.cout.writeline(text)
+            self.cout.write(text + "\n")
 
     def input(self, text=""):
         if self.input_file is None:
@@ -112,7 +128,7 @@ class FirstTask:
 
     def init_parser(self):
         pr = argparse.ArgumentParser(
-                            description="Use this module to interact with Sqrt "
+                            description="Use this module to interact with Sqrt "\
                             "Decomposition by [file | console | auto-checker]")
         pr.add_argument("-i", "--input", 
                             help="Specify input file.")
