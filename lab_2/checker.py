@@ -1,6 +1,6 @@
 import sys
 import random
-from sqrt import SqrtDecomposition
+from sqrt_structure import SqrtDecomposition
 
 class bcolors:
     HEADER = '\033[95m'
