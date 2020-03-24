@@ -53,7 +53,7 @@ class FirstTask:
         try:
             if self.output_file is not None:
                 self.cout = open(self.output_file, "w")
-        except ValueError:
+        except:
             print("{0}ERROR: Can't create output file!{1}".format(
                                                             bcolors.FAIL,
                                                             bcolors.ENDC))
