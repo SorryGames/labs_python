@@ -1,1 +1,1 @@
-This repository created for python projects.
+This repository is created for python projects.
