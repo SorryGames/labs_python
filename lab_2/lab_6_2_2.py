@@ -2,6 +2,7 @@
 
 import argparse
 import random
+from progressbar import Progressbar 
 
 
 class bcolors:
@@ -22,27 +23,48 @@ class FileGenerator:
 
     def start(self):
         args = self.init_parser()
-        symbol_store = [ chr(i) for i in range(ord('a'), ord('z')+1) ] \
+        self.symbol_store = [ chr(i) for i in range(ord('a'), ord('z')+1) ] \
                         + [ chr(i) for i in range(ord('A'), ord('Z')+1) ]
         try:
-            cout = open(args.output, "w")
+            self.cout = open(args.output, "w")
         except:
             print("{0}ERROR: Can't create output file!{1}".format(
                                                             bcolors.FAIL,
                                                             bcolors.ENDC))
         try:
-            letter_mn, letter_mx = [ int(i) for i in word_length.split(",") ]
-            word_mn, word_mx = [ int(i) for i in sentence_length.split(",") ]
+            generate_args = [ int(i) for i in args.word_length.split(",") ]\
+                            + [ int(i) for i in args.sentence_length.split(",") ]
         except:
             print("{0}ERROR: Check entered options!{1}".format(
                                                             bcolors.FAIL,
                                                             bcolors.ENDC))
-
-        size = 0
         max_size = args.size * 1000 * 1000
+        self.progressbar = Progressbar()
+        self.generate_text(max_size, *generate_args)
+        print("Done!")
+
+    def generate_text(self, max_size, letter_mn, letter_mx, word_mn, word_mx):
+        size = 0
         while True:
             cur_sentence = random.randint(word_mn, word_mx)
-            for i 
+            for i in range(cur_sentence):
+                cur_letters = random.randint(letter_mn, letter_mx)
+                for j in range(cur_letters):
+                    if size < max_size:
+                        self.cout.write(random.choice(self.symbol_store))
+                        size += 1
+                    if size < max_size:
+                        self.cout.write(" ")
+                        size += 1
+                    self.progressbar.update(size, max_size)
+                    if size == max_size:
+                        return
+                if size < max_size:
+                    self.cout.write("\n")
+                    size += 1
+                self.progressbar.update(size, max_size)
+                if size == max_size:
+                    return
 
 
     def init_parser(self):
@@ -66,5 +88,6 @@ class FileGenerator:
         return pr.parse_args()
 
 
-task = FileGenerator()
-task.start()
+if __name__ == "__main__":
+    task = FileGenerator()
+    task.start()

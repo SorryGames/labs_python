@@ -152,5 +152,6 @@ class FirstTask:
         return pr.parse_args()
 
 
-task = FirstTask()
-task.start()
+if __name__ == "__main__":
+    task = FirstTask()
+    task.start()
