@@ -31,17 +31,21 @@ class FileGenerator:
             print("{0}ERROR: Can't create output file!{1}".format(
                                                             bcolors.FAIL,
                                                             bcolors.ENDC))
+            exit()
         try:
             generate_args = [ int(i) for i in args.word_length.split(",") ]\
                             + [ int(i) for i in args.sentence_length.split(",") ]
+            if generate_args[0] > generate_args[1]\
+                    or generate_args[2] > generate_args[3]:
+                raise Exception
         except:
             print("{0}ERROR: Check entered options!{1}".format(
                                                             bcolors.FAIL,
                                                             bcolors.ENDC))
+            exit()
         max_size = args.size * 1000 * 1000
         self.progressbar = Progressbar()
         self.generate_text(max_size, *generate_args)
-        print("Done!")
 
     def generate_text(self, max_size, letter_mn, letter_mx, word_mn, word_mx):
         size = 0
@@ -53,19 +57,15 @@ class FileGenerator:
                     if size < max_size:
                         self.cout.write(random.choice(self.symbol_store))
                         size += 1
-                    if size < max_size:
-                        self.cout.write(" ")
-                        size += 1
                     self.progressbar.update(size, max_size)
                     if size == max_size:
                         return
                 if size < max_size:
-                    self.cout.write("\n")
+                    self.cout.write(" ")
                     size += 1
-                self.progressbar.update(size, max_size)
-                if size == max_size:
-                    return
-
+            if size < max_size:
+                self.cout.write("\n")
+                size += 1
 
     def init_parser(self):
         pr = argparse.ArgumentParser(
@@ -75,11 +75,11 @@ class FileGenerator:
                             help="The size of output file in MB",
                             type=int)
         pr.add_argument("-k", "--word-length",
-                            help="MIN | MAX length of word. Example: 10,100",
+                            help="MIN,MAX length of word. Example: 10,100",
                             default="10,100",
                             type=str)
         pr.add_argument("-l", "--sentence-length", 
-                            help="MIN | MAX words in sentence. Example: 3,10",
+                            help="MIN,MAX words in sentence. Example: 3,10",
                             default="3,10",
                             type=str)
         pr.add_argument("-o", "--output", 
