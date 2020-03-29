@@ -1,19 +1,9 @@
 #!/usr/bin/env python3
 
 import argparse
-from sqrt_structure import SqrtDecomposition
 from checker import Checker
-
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[95m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+from sqrt_structure import SqrtDecomposition
+from useful_module import termcolor, open_file
 
 
 class FirstTask:
@@ -34,37 +24,27 @@ class FirstTask:
             except:
                 print("{0}ERROR: Parameters for auto-checker "\
                                             "are wrong!{1}".format(
-                                                            bcolors.FAIL,
-                                                            bcolors.ENDC))
+                                                            termcolor.FAIL,
+                                                            termcolor.ENDC))
         else:
             self.sqrt_manage()
 
     def sqrt_manage(self):
         # input file if presented
-        try:
-            if self.input_file is not None:
-                self.cin = open(self.input_file, "r")
-        except:
-                print("{0}ERROR: Can't open input file!{1}".format(
-                                                            bcolors.FAIL,
-                                                            bcolors.ENDC))
-                exit()
+        if self.input_file is not None:
+            self.cin = open_file(self.input_file, "r", 
+                                            "Can't open input file!")
         # output file if presented
-        try:
-            if self.output_file is not None:
-                self.cout = open(self.output_file, "w")
-        except:
-            print("{0}ERROR: Can't create output file!{1}".format(
-                                                            bcolors.FAIL,
-                                                            bcolors.ENDC))
-            exit()
+        if self.output_file is not None:
+            self.cout = open_file(self.output_file, "w", 
+                                            "Can't create output file!")
         # enter array
         try:
             array = [ int(i) for i in self.input("Enter array: ") ]
         except:
-            print(bcolors.FAIL
+            print(termcolor.FAIL
                 + "ERROR: Check the entered array!"
-                + bcolors.ENDC)
+                + termcolor.ENDC)
             exit()
         # create sqrt structure
         sqrt = SqrtDecomposition(array)
@@ -75,8 +55,8 @@ class FirstTask:
             "\n\t{0}add L R X{1}   \tadd the value of X to elements [L, R]"\
             "\n\t{0}get L R{1}     \tget the sum of elements [L, R]"\
             "\n\t{0}exit{1}        \tstop the program\n\n".format(
-                                                            bcolors.BOLD,
-                                                            bcolors.ENDC,
+                                                            termcolor.BOLD,
+                                                            termcolor.ENDC,
                                                             len(array)))
         # processing queries
         count = 1
@@ -110,9 +90,9 @@ class FirstTask:
                     raise Exception
             except:
                 print("{0}ERROR: Check your query (#{1}){2}\n".format(
-                                                                bcolors.FAIL,
+                                                                termcolor.FAIL,
                                                                 count, 
-                                                                bcolors.ENDC))
+                                                                termcolor.ENDC))
             query = self.input()
             count += 1
 

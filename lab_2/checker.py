@@ -1,16 +1,8 @@
 import sys
 import random
 from sqrt_structure import SqrtDecomposition
+from useful_module import termcolor, open_file
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[95m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
 
 class Checker: 
 
@@ -20,13 +12,13 @@ class Checker:
         self.sqrt_array = SqrtDecomposition(self.array.copy())
         self.output = output
         if self.output is not None:
-            self.cout = open(self.output, "w")
-            self.clr_green = self.clr_gray = self.clr_red = self.clr_end = ''
+            self.cout = open_file(self.output, "w", "Can't create open file!")
+            self.clr_green = self.clr_gray = self.clr_red = self.clr_end = ""
         else:
-            self.clr_green = bcolors.OKGREEN
-            self.clr_gray = bcolors.WARNING
-            self.clr_red = bcolors.FAIL
-            self.clr_end = bcolors.ENDC
+            self.clr_green = termcolor.OKGREEN
+            self.clr_gray = termcolor.WARNING
+            self.clr_red = termcolor.FAIL
+            self.clr_end = termcolor.ENDC
 
     def print(self, text):
         if self.output is None:

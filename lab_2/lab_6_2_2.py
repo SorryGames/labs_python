@@ -3,17 +3,7 @@
 import argparse
 import random
 from progressbar import Progressbar 
-
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[95m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+from useful_module import termcolor, open_file
 
 
 class FileGenerator:
@@ -25,13 +15,8 @@ class FileGenerator:
         args = self.init_parser()
         self.symbol_store = [ chr(i) for i in range(ord('a'), ord('z')+1) ] \
                         + [ chr(i) for i in range(ord('A'), ord('Z')+1) ]
-        try:
-            self.cout = open(args.output, "w")
-        except:
-            print("{0}ERROR: Can't create output file!{1}".format(
-                                                            bcolors.FAIL,
-                                                            bcolors.ENDC))
-            exit()
+        #
+        self.cout = open_file(args.output, "w", "Can't create output file!")
         try:
             generate_args = [ int(i) for i in args.word_length.split(",") ]\
                             + [ int(i) for i in args.sentence_length.split(",") ]
@@ -40,11 +25,11 @@ class FileGenerator:
                 raise Exception
         except:
             print("{0}ERROR: Check entered options!{1}".format(
-                                                            bcolors.FAIL,
-                                                            bcolors.ENDC))
+                                                            termcolor.FAIL,
+                                                            termcolor.ENDC))
             exit()
         max_size = args.size * 1000 * 1000
-        self.progressbar = Progressbar()
+        self.progressbar = Progressbar(description="Creating")
         self.generate_text(max_size, *generate_args)
 
     def generate_text(self, max_size, letter_mn, letter_mx, word_mn, word_mx):

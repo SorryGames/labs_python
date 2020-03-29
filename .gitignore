@@ -4,3 +4,4 @@ test.*
 output*
 input*
 *.pyc
+*-tempfile
