@@ -2,6 +2,6 @@
 /sqrt-decomposition/
 test.*
 output*
-input*
+*input*
 *.pyc
 *-temp

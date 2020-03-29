@@ -42,15 +42,15 @@ class FileGenerator:
                     if size < max_size:
                         self.cout.write(random.choice(self.symbol_store))
                         size += 1
-                    self.progressbar.update(size, max_size)
-                    if size == max_size:
-                        return
                 if size < max_size:
                     self.cout.write(" ")
                     size += 1
             if size < max_size:
                 self.cout.write("\n")
                 size += 1
+            self.progressbar.update(size, max_size)
+            if size == max_size:
+                return
 
     def init_parser(self):
         pr = argparse.ArgumentParser(
