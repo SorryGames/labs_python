@@ -44,7 +44,7 @@ class SortFile:
             line = " ".join(sort(line.strip().split(" "))) + "\n"
             self.fileobjects[i % parts].write(line)
             line = self.cin.readline()
-            if i % 10000 == 0:
+            if i % 100000 == 0:
                 divide_progress.update(progressbar_size, input_size)
             i += 1
         for file in self.fileobjects:
