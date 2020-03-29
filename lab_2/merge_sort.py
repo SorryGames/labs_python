@@ -1,5 +1,7 @@
 def sort(array):
     n = len(array)
+    if n == 0:
+        return []
     if n == 1:
         return array
     if n == 2: 
