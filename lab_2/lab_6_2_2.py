@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
-import argparse
+import sys
 import random
+import argparse
 
-from progressbar import Progressbar 
-from useful_module import termcolor, open_file
+import modules
+from modules.progressbar import Progressbar 
+from modules.useful_module import termcolor, open_file
 
 
 class FileGenerator:

@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
+import sys
 import argparse
 
-from checker import Checker
-from sqrt_structure import SqrtDecomposition
-from useful_module import termcolor, open_file
+import modules
+from modules.checker import Checker
+from modules.sqrt_structure import SqrtDecomposition
+from modules.useful_module import termcolor, open_file
 
 
 class FirstTask:

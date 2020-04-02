@@ -6,5 +6,6 @@ test.*
 
 output*
 *input*
+
 *.pyc
 *-temp

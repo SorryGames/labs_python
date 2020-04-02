@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 import uuid
 import argparse
 
-from progressbar import Progressbar 
-from useful_module import termcolor, open_file 
-from merge_sort import sort, merge
+import modules
+from modules.progressbar import Progressbar 
+from modules.useful import termcolor, open_file 
+from modules.merge_sort import sort, merge
 
 
 class SortFile:
