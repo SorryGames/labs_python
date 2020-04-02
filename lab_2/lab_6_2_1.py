@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+
 from checker import Checker
 from sqrt_structure import SqrtDecomposition
 from useful_module import termcolor, open_file

@@ -2,6 +2,7 @@
 
 import argparse
 import random
+
 from progressbar import Progressbar 
 from useful_module import termcolor, open_file
 
