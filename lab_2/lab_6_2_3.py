@@ -4,14 +4,17 @@ import os
 import sys
 import uuid
 import argparse
+import time
 
-import modules
+from modules.merge_sort import sort, merge
 from modules.progressbar import Progressbar 
 from modules.useful import termcolor, open_file 
-from modules.merge_sort import sort, merge
+from modules.tempfile import TempFile 
 
 
 class SortFile:
+    MAX_SYMBOLS_PER_READ = 5000000
+    count_remove = 0
 
     def __init__(self):
         pass
@@ -19,96 +22,158 @@ class SortFile:
     def start(self):
         args = self.init_parser()
         #
-        self.cin = open_file(args.input, "r", "Can't open input file!")
-        self.cout = open_file(args.output, "w", "Can't create output file!")
+        cin = open_file(args.input, "r", "Can't open input file!")
+        cout = open_file(args.output, "w", "Can't create output file!")
         #
-        input_size = os.stat(args.input).st_size
-        self.divide_file(args.parts, input_size)
-        self.cin.close()
+        source_cin = self._read_from_file(cin, " ", "\n")
+        while self._sort_line(source_cin, cout):
+            pass
         #
-        self.sort_files()
-        #
-        self.merge_files()
-        #
-        os.rename(self.filenames[0], args.output)
+        cin.close(); cout.close()
 
-    def divide_file(self, parts, input_size):
-        self.filenames = [ str(uuid.uuid1())+"-temp" for i in range(parts) ]
-        #
-        self.fileobjects = [ open_file(name, "w", "Can't create temp-file!") 
-                                                for name in self.filenames ]
-        #
-        i = 0
-        progressbar_size = 0
-        line = self.cin.readline()
-        divide_progress = Progressbar(description="Division")
-        while line:
-            progressbar_size += len(line)
-            line = " ".join(sort(line.strip().split(" "))) + "\n"
-            self.fileobjects[i % parts].write(line)
-            line = self.cin.readline()
-            if i % 100000 == 0:
-                divide_progress.update(progressbar_size, input_size)
-            i += 1
-        for file in self.fileobjects:
-            file.close()
-        divide_progress.update(100)
+    def _read_from_file(self, file_in, *separators):
+        symbol_count=self.MAX_SYMBOLS_PER_READ
+        data = ""
+        while True:
+            if data == "":
+                data = file_in.read(symbol_count)
+            position = symbol_count
+            for symbol in separators:
+                temp_position = data.find(symbol)
+                if temp_position >= 0:
+                    position = min(position, temp_position)
+            yield data[:position+1]
+            data = data[position+1:]
 
-    def sort_files(self):
-        progressbar_count = 0
-        sort_progress = Progressbar(description="Sorting")
-        for filename in self.filenames:
-            infile = open_file(filename, "r", "Can't open temp-file!")
-            lines = infile.readlines()
-            infile.close()
-            os.remove(filename)
-            #
-            outfile = open_file(filename, "w", "Can't create temp-file")
-            outfile.writelines(sort(lines))
-            outfile.close()
-            progressbar_count += 1
-            sort_progress.update(progressbar_count, len(self.filenames))
-
-
-    def merge_two_files(self, filename_a, filename_b):
-        filename = str(uuid.uuid1()) + "-temp"
-        # 
-        file_a = open_file(filename_a, "r", "Can't open temp-file!")
-        file_b = open_file(filename_b, "r", "Can't open temp-file!")
+    def _buffer_less_or_equal_than(self, filename_a, filename_b):
+        a_file = open_file(filename_a, "r", "Can't open temp-file!")
+        b_file = open_file(filename_b, "r", "Can't open temp-file!")
         #
-        outfile = open_file(filename, "w", "Can't create temp-file!")
+        source_a = self._read_from_file(a_file)
+        source_b = self._read_from_file(b_file) 
+        while True:     
+            data_a, data_b = next(source_a), next(source_b)  
+            if data_a != data_b or not data_a or not data_b:
+                break
+        a_file.close(); b_file.close()
+        return data_a <= data_b
+
+    def _line_from_buffer_to_flow(self, in_filename, out_file):
+        in_file = open_file(in_filename, "r", "Can't open temp-file!")
+        source = self._read_from_file(in_file)
+        data = ":)"
+        while data:
+            data = next(source)
+            data = data.strip()
+            out_file.write(data)
+        out_file.write("\n")
+        in_file.close()
+
+    def _line_from_flow_to_buffer(self, in_source, out_filename):
+        out_file = open_file(out_filename, "w", "Can't create temp-file!")
+        flow_empty = True
         #
-        line_a, line_b = file_a.readline(), file_b.readline()
-        while line_a and line_b:
-            if line_a < line_b:
-                outfile.write(line_a)
-                line_a = file_a.readline()
+        while True:
+            data = next(in_source)
+            if data == "":
+                break
             else:
-                outfile.write(line_b)
-                line_b = file_b.readline()
+                out_file.write(data.strip())
+                flow_empty = False
+            if data[-1] == "\n":
+                break
         #
-        outfile.writelines([line_a, line_b])
-        outfile.writelines(file_a.readlines())
-        outfile.writelines(file_b.readlines())
-        #
-        outfile.close(); file_a.close(); file_b.close()
-        os.remove(filename_a); os.remove(filename_b)
-        #
-        return filename
+        out_file.close()
+        return not flow_empty
 
+    def _merge_two_files(self, filename_a, filename_b):
+        a_file = open_file(filename_a, "r", "Can't open temp-file!")
+        b_file = open_file(filename_b, "r", "Can't open temp-file!")
+        #
+        a_source = self._read_from_file(a_file, "\n")
+        b_source = self._read_from_file(b_file, "\n")
+        #
+        temp = TempFile()
+        a_buffer, b_buffer, result_buffer = [ temp.reload() for i in range(3) ]
+        result_file = open_file(result_buffer, "w", "Can't create temp-file!")
+        #
+        a_not_empty = self._line_from_flow_to_buffer(a_source, a_buffer)
+        b_not_empty = self._line_from_flow_to_buffer(b_source, b_buffer)
+        #
+        #
+        while a_not_empty and b_not_empty:
+            if self._buffer_less_or_equal_than(a_buffer, b_buffer):
+                self._line_from_buffer_to_flow(a_buffer, result_file)
+                a_not_empty = self._line_from_flow_to_buffer(a_source, a_buffer)
+            else:
+                self._line_from_buffer_to_flow(b_buffer, result_file)
+                b_not_empty = self._line_from_flow_to_buffer(b_source, b_buffer)
+        #
+        #
+        while a_not_empty:
+            self._line_from_buffer_to_flow(a_buffer, result_file)
+            a_not_empty = self._line_from_flow_to_buffer(a_source, a_buffer)
+        while b_not_empty:
+            self._line_from_buffer_to_flow(b_buffer, result_file)
+            b_not_empty = self._line_from_flow_to_buffer(b_source, b_buffer)
+        #
+        a_file.close(); b_file.close(); result_file.close()
+        for filename in [filename_a, filename_b, a_buffer, b_buffer]:
+            os.remove(filename)
+            self.count_remove += 1
+        self.count_remove += 1
+        #
+        return result_buffer
 
-    def merge_files(self):
-        progressbar_count = len(self.filenames)
-        merge_progress = Progressbar(description="Merging")
-        while len(self.filenames) > 1:
-            self.filenames.append(self.merge_two_files(self.filenames[0], self.filenames[1]))
-            [ self.filenames.pop(0) for i in range(2) ]
-            merge_progress.update(progressbar_count - len(self.filenames) + 1, progressbar_count)
+    def _merge_files(self, filename_array): 
+        while len(filename_array) > 1:
+            filename_array.append(self._merge_two_files(filename_array[0],
+                                                        filename_array[1]))
+            filename_array.pop(0); filename_array.pop(0)
+
+    def _file_to_line(self, in_filename, out_file):
+        in_file = open_file(in_filename, "r", "Can't open temp-file!")
+        in_source = self._read_from_file(in_file, "\n")
+        data = ":)"
+        while data:
+            data = next(in_source)
+            out_file.write(data.strip() + " ")
+        out_file.write("\n")
+        in_file.close()
+
+    def _sort_line(self, in_source, out_file, max_temp_files=128):
+        temp = TempFile()
+        filename_array = []
+        while True:
+            data = next(in_source)
+            if data == "":
+                break
+            elif data[-1] == " ":
+                temp.push(data.strip())
+                filename_array.append(temp.reload())
+            elif data[-1] == "\n":
+                temp.push(data.strip())
+                filename_array.append(temp.reload())
+                break
+            else:
+                temp.push(data.strip())
+            if len(filename_array) == max_temp_files:
+                self._merge_files(filename_array)
+        #
+        if not len(filename_array):
+            return False
+        #
+        self._merge_files(filename_array)
+        self._file_to_line(filename_array[0], out_file)
+        os.remove(filename_array[0])
+        self.count_remove += 2
+        #
+        return True
 
     def init_parser(self):
         pr = argparse.ArgumentParser(
-                            description="Use this module implements "\
-                            "external mergesort. ")
+                            description="This module performs "\
+                            "sorting of any file. ")
         pr.add_argument("-i", "--input",
                             help="Specify input file. Default: input.txt",
                             default="input.txt",
@@ -117,12 +182,18 @@ class SortFile:
                             help="Specify output file. Default: output.txt",
                             default="output.txt")
         pr.add_argument("-p", "--parts", 
-                            help="Specify amount of temp-files. Default: 16",
-                            default=16,
+                            help="Specify amount of temp-files. Default: 64",
+                            default=64,
                             type=int)
         return pr.parse_args()
 
 
 if __name__ == "__main__":
+    start = int(time.perf_counter())
+    
     file_manage = SortFile()
     file_manage.start()
+    print(file_manage.count_remove)
+
+    finish = int(time.perf_counter())
+    print("{}:{}".format((finish - start) // 60, (finish - start) % 60))

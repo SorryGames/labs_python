@@ -4,9 +4,8 @@ import sys
 import random
 import argparse
 
-import modules
 from modules.progressbar import Progressbar 
-from modules.useful_module import termcolor, open_file
+from modules.useful import termcolor, open_file
 
 
 class FileGenerator:
@@ -45,6 +44,8 @@ class FileGenerator:
                     if size < max_size:
                         self.cout.write(random.choice(self.symbol_store))
                         size += 1
+                    else:
+                        break
                 if size < max_size:
                     self.cout.write(" ")
                     size += 1
@@ -58,7 +59,7 @@ class FileGenerator:
     def init_parser(self):
         pr = argparse.ArgumentParser(
                             description="Use this module to generate "\
-                            "output file with specified size. ")
+                            "output file of the specified size. ")
         pr.add_argument("size", 
                             help="The size of output file in MB",
                             type=int)

@@ -3,10 +3,9 @@
 import sys
 import argparse
 
-import modules
 from modules.checker import Checker
+from modules.useful import termcolor, open_file
 from modules.sqrt_structure import SqrtDecomposition
-from modules.useful_module import termcolor, open_file
 
 
 class FirstTask:

@@ -11,7 +11,7 @@ class termcolor:
 
 
 # Safety file opening
-def open_file(filename, filemod, error_log): 
+def open_file(filename, filemod, error_log=""): 
     try:
         return open(filename, filemod)
     except:

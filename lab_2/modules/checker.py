@@ -1,7 +1,8 @@
 import sys
 import random
-from sqrt_structure import SqrtDecomposition
-from useful_module import termcolor, open_file
+
+from modules.sqrt_structure import SqrtDecomposition
+from modules.useful import termcolor, open_file
 
 
 class Checker: 
