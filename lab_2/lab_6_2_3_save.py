@@ -22,14 +22,10 @@ class SortFile:
     def start(self):
         args = self.init_parser()
         #
-        cin = open_file(args.input, "r", "Can't open input file!")
-        cout = open_file(args.output, "w", "Can't create output file!")
-        #
         source_cin = self._read_from_file(cin, " ", "\n")
         while self._sort_line(source_cin, cout):
             pass
         #
-        cin.close(); cout.close()
 
     def _read_from_file(self, file_in, *separators):
         symbol_count=self.MAX_SYMBOLS_PER_READ

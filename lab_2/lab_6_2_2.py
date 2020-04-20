@@ -46,6 +46,8 @@ class FileGenerator:
                         size += 1
                     else:
                         break
+                    if not size % 5000000:
+                        self.progressbar.update(size, max_size)
                 if size < max_size:
                     self.cout.write(" ")
                     size += 1
