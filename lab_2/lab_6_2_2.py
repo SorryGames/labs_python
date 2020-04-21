@@ -31,11 +31,15 @@ class FileGenerator:
                                                             termcolor.ENDC))
             exit()
         max_size = args.size * 1000 * 1000
-        self.progressbar = Progressbar(description="Creating")
         self.generate_text(max_size, *generate_args)
 
     def generate_text(self, max_size, letter_mn, letter_mx, word_mn, word_mx):
         size = 0
+        # =========================================================
+        #
+        progressbar = Progressbar(description="Creating")
+        #
+        # =========================================================
         while True:
             cur_sentence = random.randint(word_mn, word_mx)
             for i in range(cur_sentence):
@@ -46,15 +50,23 @@ class FileGenerator:
                         size += 1
                     else:
                         break
+                    # =========================================================
+                    #
                     if not size % 5000000:
-                        self.progressbar.update(size, max_size)
+                        progressbar.update(size, max_size)
+                    #
+                    # =========================================================
                 if size < max_size:
                     self.cout.write(" ")
                     size += 1
             if size < max_size:
                 self.cout.write("\n")
                 size += 1
-            self.progressbar.update(size, max_size)
+            # =========================================================
+            #
+            progressbar.update(size, max_size)
+            #
+            # =========================================================
             if size == max_size:
                 return
 
