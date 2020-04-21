@@ -47,7 +47,7 @@ class SortFile:
         progressbar_process = Progressbar(description="Division")
         #
         # =========================================================
-        MAX_SYMBOLS_PER_FILE = 1000000  # 1mb
+        MAX_SYMBOLS_PER_FILE = 10000000  # 10mb
         in_file = self._read_from_file(in_filename, "\n")
         #
         temp_array = [ TempFile(), TempFile() ]  # [ small, big ]
@@ -55,12 +55,19 @@ class SortFile:
         key = 0  # (0: small, 1: big)
         #
         while True:
-            data, wall = next(in_file)
-            # =========================================================
-            #
-            progressbar_cur += len(data)
-            #
-            # =========================================================
+            data = ""
+            while True:
+                buffer_data, wall = next(in_file)
+                data += buffer_data
+                # =========================================================
+                #
+                progressbar_cur += len(buffer_data) + len(wall) 
+                #
+                # =========================================================
+                if (not buffer_data and not wall
+                    or len(data) >= MAX_SYMBOLS_PER_FILE
+                    or wall):
+                    break
             if not data and not wall:
                 [ filename_array[key].append(temp_array[key].free()) 
                                                         for key in range(2) ]
@@ -201,7 +208,12 @@ class SortFile:
                 line_b = file_b.readline()
         #
         outfile.writelines([line_a, line_b])
-        outfile.writelines(file_a.readlines())
+        while line_a:
+            outfile.write(line_a)
+            line_a = file_a.readline()
+        while line_b:
+            outfile.write(line_b)
+            line_b = file_b.readline()
         outfile.writelines(file_b.readlines())
         #
         outfile.close(); file_a.close(); file_b.close()
@@ -245,7 +257,7 @@ class SortFile:
             return filename_array[0]
         return ""
 
-    def _sort_file(self, in_filename, out_filename):
+    def _sort_file(self, in_filename, out_filename=""):
         #
         # divide
         filename_array = self._divide_file(in_filename)
@@ -259,6 +271,7 @@ class SortFile:
         filename_array = [ i for i in filename_array if i ]
         filename_array = self._merge_files(filename_array)
         #
+        # rename
         if filename_array:
             os.rename(filename_array, out_filename)
 
