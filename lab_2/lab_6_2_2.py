@@ -52,8 +52,7 @@ class FileGenerator:
                         break
                     # =========================================================
                     #
-                    if not size % 5000000:
-                        progressbar.update(size, max_size)
+                    progressbar.update(size, max_size)
                     #
                     # =========================================================
                 if size < max_size:
@@ -69,6 +68,11 @@ class FileGenerator:
             # =========================================================
             if size == max_size:
                 return
+        # =========================================================
+        #
+        progressbar.finish()
+        #
+        # =========================================================
 
     def init_parser(self):
         pr = argparse.ArgumentParser(
