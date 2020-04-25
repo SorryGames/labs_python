@@ -3,28 +3,94 @@
 import os
 import sys
 import uuid
-import argparse
 import time
+import argparse
+import traceback
 
-from modules.merge_sort import sort, merge
+from modules.merge_sort import sort
 from modules.progressbar import Progressbar 
 from modules.useful import termcolor, open_file 
 from modules.tempfile import TempFile 
 
 
 class SortFile:
-    ERROR_READ = "Can't open file to read!"
-    ERROR_WRITE = "Can't open file to write!"
+    """
+    """
+    ERROR_READ = "Can't open file to read! "
+    ERROR_WRITE = "Can't open file to write! "
 
     def __init__(self):
         pass
 
     def start(self):
         args = self.init_parser()
-        self._sort_file(args.input, args.output)
+        #
+        MAX_SYMBOLS_PER_LINE = 10000000  # 10mb
+        #
+        in_source = self._read_from_file(args.input, " ", "\n")
+        in_source_analyze = self._read_from_file(args.input, "\n")
+        #
+        f_info = "start()"
+        out_file = open_file(args.output, "w", self.ERROR_WRITE + f_info)
+        #
+        # =========================================================
+        # 
+        progressbar_cur = 0
+        progressbar_step = 0
+        progressbar_max = os.stat(args.input).st_size
+        progressbar_process = Progressbar(description="Sorting lines")
+        #
+        # =========================================================
+        while True:
+            #
+            # How long is line?
+            data = ""
+            for i in range(20):
+                buffer_data, wall = next(in_source_analyze)
+                data += buffer_data
+                if wall == "\n":
+                    break
+            while True:
+                if wall == "\n":
+                    break
+                buffer_data, wall = next(in_source_analyze)
+                if not buffer_data and not wall:
+                    break
+            #
+            if not data:
+                break
+            #
+            # =========================================================
+            # 
+            progressbar_cur += len(data)
+            progressbar_step += 1
+            if not progressbar_step % 5:
+                progressbar_process.update(progressbar_cur, progressbar_max)
+            #
+            # =========================================================
+            #
+            if len(data) >= MAX_SYMBOLS_PER_LINE:
+                filename = self._line_to_file(in_source)
+                self._sort_file(filename, filename)
+                self._file_to_line(filename, out_file)
+                os.remove(filename)
+            else:
+                data = sort(data.split())
+                data = " ".join(data)
+                out_file.write(data + "\n")
+        # =========================================================
+        #
+        progressbar_process.update(100)
+        #
+        # =========================================================
+        out_file.close()
+        self._sort_file(args.output, args.output, debug=True)
+
 
     def _read_from_file(self, in_filename, *separators):
-        in_file = open_file(in_filename, "r", self.ERROR_READ)
+        f_info = "_read_from_file()"
+        #
+        in_file = open_file(in_filename, "r", self.ERROR_READ + f_info)
         MAX_SYMBOLS_PER_READ = 1000000  # 1mb 
         data = ""
         while True:
@@ -39,14 +105,7 @@ class SortFile:
             yield (data[:position], data[position:position+1])    
             data = data[position+1:]
 
-    def _divide_file(self, in_filename):
-        # =========================================================
-        # 
-        progressbar_cur = 0
-        progressbar_max = os.stat(in_filename).st_size
-        progressbar_process = Progressbar(description="Division")
-        #
-        # =========================================================
+    def _divide_file(self, in_filename, need_debug=False):
         MAX_SYMBOLS_PER_FILE = 10000000  # 10mb
         in_file = self._read_from_file(in_filename, "\n")
         #
@@ -54,20 +113,34 @@ class SortFile:
         filename_array = [ [], [] ]  # [ small, big ]
         key = 0  # (0: small, 1: big)
         #
+        # =========================================================
+        # 
+        if need_debug:
+            progressbar_cur = 0
+            progressbar_step = 0
+            progressbar_max = os.stat(in_filename).st_size
+            progressbar_process = Progressbar(description="Dividing file")
+        #
+        # =========================================================
         while True:
             data = ""
             while True:
                 buffer_data, wall = next(in_file)
                 data += buffer_data
-                # =========================================================
-                #
-                progressbar_cur += len(buffer_data) + len(wall) 
-                #
-                # =========================================================
                 if (not buffer_data and not wall
                     or len(data) >= MAX_SYMBOLS_PER_FILE
                     or wall):
                     break
+            # =========================================================
+            # 
+            if need_debug:
+                progressbar_cur += len(data)
+                progressbar_step += 1
+                if not progressbar_step % 200:
+                    progressbar_process.update(progressbar_cur, 
+                                                progressbar_max)
+            #
+            # =========================================================
             if not data and not wall:
                 [ filename_array[key].append(temp_array[key].free()) 
                                                         for key in range(2) ]
@@ -79,44 +152,47 @@ class SortFile:
             if wall and temp_array[key].sizeof() >= MAX_SYMBOLS_PER_FILE:
                 filename_array[key].append(temp_array[key].free())
                 key = 0
-                # =========================================================
-                #
-                progressbar_process.update(progressbar_cur, progressbar_max)
-                #
-                # =========================================================
         #
         filename_array = [ [ i for i in filename_array[key] if i ] 
                                                     for key in range(2) ]
         # =========================================================
-        #
-        progressbar_process.update(100)
+        # 
+        if need_debug:
+            progressbar_process.update(100)
         #
         # =========================================================
         return filename_array
 
-    def _sort_small_files(self, in_filenames):
+    def _sort_small_files(self, in_filenames, need_debug=False):
         # =========================================================
         # 
-        progressbar_cur = 0
-        progressbar_max = len(in_filenames)
-        progressbar_process = Progressbar(description="Sorting")
+        if need_debug:
+            progressbar_cur = 0
+            progressbar_max = len(in_filenames)
+            progressbar_process = Progressbar(description="Sorting "\
+                                                            "temporary files")
         #
         # =========================================================
+        f_info = "_sort_small_files()"
         for filename in in_filenames:
-            with open_file(filename, "r", self.ERROR_READ) as in_file:
+            with open_file(filename, "r", self.ERROR_READ + f_info)\
+                                                                as in_file:
                 data = in_file.readlines()
             data = [ (i.replace("\n", "") + "\n") for i in data ]
-            with open_file(filename, "w", self.ERROR_WRITE) as out_file:
+            with open_file(filename, "w", self.ERROR_WRITE + f_info)\
+                                                                as out_file:
                 out_file.writelines(sort(data))
-                # =========================================================
-                # 
+            # =========================================================
+            # 
+            if need_debug:
                 progressbar_cur += 1
                 progressbar_process.update(progressbar_cur, progressbar_max)
-                #
-                # =========================================================
+            #
+            # =========================================================
         # =========================================================
         # 
-        progressbar_process.update(100)
+        if need_debug:
+            progressbar_process.update(100)
         #
         # =========================================================
         return in_filenames
@@ -141,7 +217,9 @@ class SortFile:
         out_file.write("\n")
 
     def _line_from_flow_to_buffer(self, in_source, out_filename):
-        out_file = open_file(out_filename, "w", self.ERROR_WRITE)
+        f_info = "_line_from_flow_to_buffer()"
+        out_file = open_file(out_filename, "w", self.ERROR_WRITE 
+                                                + f_info)
         flow_empty = True
         #
         while True:
@@ -160,9 +238,10 @@ class SortFile:
         b_source = self._read_from_file(filename_b, "\n")
         #
         temp = TempFile()
+        f_info = "_merge_two_files_by_buffer()"
         a_buffer, b_buffer, result_buffer = [ temp.create_empty() 
                                                         for i in range(3) ]
-        result_file = open_file(result_buffer, "w", self.ERROR_WRITE)
+        result_file = open_file(result_buffer, "w", self.ERROR_WRITE + f_info)
         #
         a_not_empty = self._line_from_flow_to_buffer(a_source, a_buffer)
         b_not_empty = self._line_from_flow_to_buffer(b_source, b_buffer)
@@ -192,11 +271,12 @@ class SortFile:
 
     def _merge_two_files_by_line(self, filename_a, filename_b):
         filename = str(uuid.uuid1()) + "-temp"
+        f_info = "_merge_two_files_by_line()"
         # 
-        file_a = open_file(filename_a, "r", self.ERROR_READ)
-        file_b = open_file(filename_b, "r", self.ERROR_READ)
+        file_a = open_file(filename_a, "r", self.ERROR_READ + f_info)
+        file_b = open_file(filename_b, "r", self.ERROR_READ + f_info)
         #
-        outfile = open_file(filename, "w", self.ERROR_WRITE)
+        outfile = open_file(filename, "w", self.ERROR_WRITE + f_info)
         #
         line_a, line_b = file_a.readline(), file_b.readline()
         while line_a and line_b:
@@ -207,14 +287,12 @@ class SortFile:
                 outfile.write(line_b)
                 line_b = file_b.readline()
         #
-        outfile.writelines([line_a, line_b])
         while line_a:
             outfile.write(line_a)
             line_a = file_a.readline()
         while line_b:
             outfile.write(line_b)
             line_b = file_b.readline()
-        outfile.writelines(file_b.readlines())
         #
         outfile.close(); file_a.close(); file_b.close()
         os.remove(filename_a); os.remove(filename_b)
@@ -227,14 +305,16 @@ class SortFile:
         else:
             return self._merge_two_files_by_line(filename_a, filename_b)
 
-    def _merge_files(self, filename_array, compare_by_pieces=True): 
+    def _merge_files(self, filename_array, compare_by_pieces=True, 
+                                                        need_debug=False): 
         # =========================================================
         # 
-        progressbar_cur = 0
-        progressbar_max = len(filename_array)
-        progressbar_process = Progressbar(
-                                description="Merge (buffering: {})".format(
-                                                        compare_by_pieces))
+        if need_debug:
+            progressbar_cur = 0
+            progressbar_max = len(filename_array)-1
+            progressbar_process = Progressbar(
+                        description="Merge files (buffering: {})".format(
+                                                            compare_by_pieces))
         #
         # =========================================================
         while len(filename_array) > 1:
@@ -244,36 +324,43 @@ class SortFile:
             filename_array.pop(0); filename_array.pop(0)
             # =========================================================
             # 
-            progressbar_cur += 1
-            progressbar_process.update(progressbar_cur, progressbar_max)
+            if need_debug:
+                progressbar_cur += 1
+                progressbar_process.update(progressbar_cur, progressbar_max)
             #
             # =========================================================
         # =========================================================
         # 
-        progressbar_process.update(100)
+        if need_debug:
+            progressbar_process.update(100)
         #
         # =========================================================
+        #
         if len(filename_array):
             return filename_array[0]
         return ""
 
-    def _sort_file(self, in_filename, out_filename=""):
+    def _sort_file(self, in_filename, out_filename="", debug=False):
         #
         # divide
-        filename_array = self._divide_file(in_filename)
+        filename_array = self._divide_file(in_filename, need_debug=debug)
         #
         # sort
-        filename_array[0] = self._sort_small_files(filename_array[0])
+        filename_array[0] = self._sort_small_files(filename_array[0], 
+                                                            need_debug=debug)
         #
         # merge
-        filename_array = [ self._merge_files(filename_array[key], bool(key))
-                                                        for key in range(2) ]
+        filename_array = [
+            self._merge_files(filename_array[key], bool(key), need_debug=debug)    
+            for key in range(2)
+        ]
         filename_array = [ i for i in filename_array if i ]
-        filename_array = self._merge_files(filename_array)
+        filename = self._merge_files(filename_array, need_debug=debug)
         #
-        # rename
-        if filename_array:
-            os.rename(filename_array, out_filename)
+        if out_filename:
+            os.rename(filename, out_filename)
+            filename = out_filename
+        return filename
 
     def _file_to_line(self, in_filename, out_file):
         in_file = self._read_from_file(in_filename, "\n")
@@ -281,7 +368,7 @@ class SortFile:
             data, wall = next(in_file)
             if not data and not wall:
                 out_file.write("\n")
-                return
+                return None
             out_file.write(data)
             if data and wall == "\n":
                 out_file.write(" ")
@@ -318,10 +405,10 @@ class SortFile:
 
 
 if __name__ == "__main__":
-    start = int(time.perf_counter())
+    # start = int(time.perf_counter())
     
     file_manage = SortFile()
     file_manage.start()
     
-    finish = int(time.perf_counter())
-    print("{}:{}".format((finish - start) // 60, (finish - start) % 60))
+    # finish = int(time.perf_counter())
+    # print("{}:{}".format((finish - start) // 60, (finish - start) % 60))
