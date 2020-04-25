@@ -36,7 +36,6 @@ class SortFile:
         # =========================================================
         # 
         progressbar_cur = 0
-        progressbar_step = 0
         progressbar_max = os.stat(args.input).st_size
         progressbar_process = Progressbar(description="Sorting lines")
         #
@@ -63,9 +62,7 @@ class SortFile:
             # =========================================================
             # 
             progressbar_cur += len(data)
-            progressbar_step += 1
-            if not progressbar_step % 5:
-                progressbar_process.update(progressbar_cur, progressbar_max)
+            progressbar_process.update(progressbar_cur, progressbar_max)
             #
             # =========================================================
             #
@@ -80,7 +77,7 @@ class SortFile:
                 out_file.write(data + "\n")
         # =========================================================
         #
-        progressbar_process.update(100)
+        progressbar_process.finish()
         #
         # =========================================================
         out_file.close()
@@ -117,7 +114,6 @@ class SortFile:
         # 
         if need_debug:
             progressbar_cur = 0
-            progressbar_step = 0
             progressbar_max = os.stat(in_filename).st_size
             progressbar_process = Progressbar(description="Dividing file")
         #
@@ -135,9 +131,7 @@ class SortFile:
             # 
             if need_debug:
                 progressbar_cur += len(data)
-                progressbar_step += 1
-                if not progressbar_step % 200:
-                    progressbar_process.update(progressbar_cur, 
+                progressbar_process.update(progressbar_cur, 
                                                 progressbar_max)
             #
             # =========================================================
@@ -158,7 +152,7 @@ class SortFile:
         # =========================================================
         # 
         if need_debug:
-            progressbar_process.update(100)
+            progressbar_process.finish()
         #
         # =========================================================
         return filename_array
@@ -192,7 +186,7 @@ class SortFile:
         # =========================================================
         # 
         if need_debug:
-            progressbar_process.update(100)
+            progressbar_process.finish()
         #
         # =========================================================
         return in_filenames
@@ -332,7 +326,7 @@ class SortFile:
         # =========================================================
         # 
         if need_debug:
-            progressbar_process.update(100)
+            progressbar_process.finish()
         #
         # =========================================================
         #
