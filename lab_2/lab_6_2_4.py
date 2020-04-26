@@ -1,16 +1,12 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 
-def flatten(data):
-    for i in data:
-        yield i
-
-a = flatten(1)
+import sys
 
 
-print(next(a))
+def flatten_it(array):
+	pass
 
 
-print(next(a))
-
-
-print(a.__next__())
+if __name__ == "__main__":
+	data = [1, 2, 3, [4, 5], [1], []]
+	

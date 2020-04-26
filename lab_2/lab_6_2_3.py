@@ -391,18 +391,9 @@ class SortFile:
         pr.add_argument("-o", "--output", 
                             help="Specify output file. Default: output.txt",
                             default="output.txt")
-        pr.add_argument("-p", "--parts", 
-                            help="Specify amount of temp-files. Default: 64",
-                            default=64,
-                            type=int)
         return pr.parse_args()
 
 
 if __name__ == "__main__":
-    # start = int(time.perf_counter())
-    
     file_manage = SortFile()
     file_manage.start()
-    
-    # finish = int(time.perf_counter())
-    # print("{}:{}".format((finish - start) // 60, (finish - start) % 60))
