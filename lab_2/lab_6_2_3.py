@@ -8,9 +8,9 @@ import argparse
 import traceback
 
 from modules.merge_sort import sort
+from modules.tempfile import TempFile 
 from modules.progressbar import Progressbar 
 from modules.useful import termcolor, open_file 
-from modules.tempfile import TempFile 
 
 
 class SortFile:
