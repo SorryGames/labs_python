@@ -11,4 +11,6 @@ class E(D, A): pass
 
 print(E.__mro__)
 print(own_mro(E))
+
+print()
 print(E.__mro__ == own_mro(E))

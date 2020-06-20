@@ -1,12 +1,6 @@
 #!/usr/bin/env python3
 
 
-def _decorator_try_except(*args, **kwargs):
-    def _inner_decorator():
-        pass
-    return _inner_decorator
-
-
 def _merge_function(list_of_classes):
     index = 0
     merge_result = []
