@@ -3,7 +3,7 @@
 from mro import own_mro
 
 
-class super_puper(dict):
+class super_puper():
 
     def __init__(self, class_name):
         self.mro_order = own_mro(class_name)[1:]
